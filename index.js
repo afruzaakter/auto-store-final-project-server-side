@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const port = process.env.PORT || 5000;
 
@@ -10,7 +11,7 @@ app.use(express.json())
 
 //mongodb connection
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.u5smt.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
@@ -19,13 +20,41 @@ async function run(){
         await client.connect();
         // console.log('database connection success');
         const servicesCollection = client.db('auto-store').collection('services');
-
+        //all services
         app.get('/service', async(req, res) =>{
             const query = {}
             const cursur = servicesCollection.find(query);
             const services = await cursur.toArray();
             res.send(services);
 
+        });
+        //only one product details
+        app.get('/service/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log('params',id);
+            const query = { _id: ObjectId(id) };
+            const service = await servicesCollection.findOne(query);
+            res.send(service);
+        })
+        
+        //update
+        app.put('/service/:id', async(req, res) =>{
+            const id = req.params.id;
+            const product = req.body;
+            const filter = {_id: ObjectId(id)};
+            const options = {upsert: true};
+            const updateProduct = {
+                $set: {
+                    name: product.name,
+                    price: product.price,
+                    img: product.img,
+                    description: product.description,
+                    minimumOrderQuantity: product.minimumOrderQuantity,
+                    availableQuantity: product.availableQuantity,
+                }
+            };
+            const result = await servicesCollection.updateOne(filter, updateProduct, options);
+            res.send(result);
         })
 
     }
