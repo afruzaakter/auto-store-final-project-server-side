@@ -4,6 +4,7 @@ const app = express();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const port = process.env.PORT || 5000;
+const jwt = require('jsonwebtoken');
 
 app.use(cors())
 app.use(express.json())
@@ -21,6 +22,7 @@ async function run(){
         // console.log('database connection success');
         const servicesCollection = client.db('auto-store').collection('services');
         const purchaseCollection = client.db('auto-store').collection('purchase');
+        const userCollection = client.db('auto-store').collection('users');
 
         app.post('/purchase',async(req, res) =>{
             const purchase = req.body;
@@ -37,7 +39,19 @@ async function run(){
             const purchases = await purchaseCollection.find(query).toArray();
             res.send(purchases);
         })
-
+        
+        //user collection
+        app.put('/user/:email', async(req, res )=>{
+            const email = req.params.email;
+            const user = req.body;
+            const filter = {email: email};
+            const options = {upsert: true};
+            const updateDoc ={
+                $set: user,
+            };
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+        })
 
         //all services
         app.get('/service', async(req, res) =>{
