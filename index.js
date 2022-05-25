@@ -31,13 +31,31 @@ async function run(){
             res.send(result);
             // console.log(result);
         });
+        // app.delete('/service/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     // console.log('params',id);
+        //     const query = { _id: ObjectId(id) };
+        //     const service = await servicesCollection.deleteOne(query);
+        //     res.send(service);
+        // })
+        
+        // delete
+        app.delete('/purchase/:id',async( req, res)=>{
+            const id = req.params.id;
+            console.log('puid',id);
+            const query = {_id: ObjectId(id)}
+            const purchase = await purchaseCollection.deleteOne(query);
+            res.send(purchase);
+        })
 
+        //purchase table data show
         app.get('/purchase', async(req, res) =>{
-            const user = req.query.userEmail;
-            console.log("user",user);
-            const query = {user: user};
-            const purchases = await purchaseCollection.find(query).toArray();
-            res.send(purchases);
+            const order = req.query.userEmail;
+            // console.log("user",order);
+            const query = {order: order};
+            const purchase = await purchaseCollection.find(query).toArray();
+            res.send(purchase);
+            // console.log(purchase)
         })
         
         //user collection
@@ -50,7 +68,10 @@ async function run(){
                 $set: user,
             };
             const result = await userCollection.updateOne(filter, updateDoc, options);
-            res.send(result);
+            const token = jwt.sign({email: email}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1h' });
+            console.log(token)
+
+            res.send({result, token});
         })
 
         //all services
@@ -64,11 +85,13 @@ async function run(){
         //only one product details
         app.get('/service/:id', async (req, res) => {
             const id = req.params.id;
-            console.log('params',id);
+            // console.log('params',id);
             const query = { _id: ObjectId(id) };
             const service = await servicesCollection.findOne(query);
             res.send(service);
         })
+        //delete
+      
         
         //update
         app.put('/service/:id', async(req, res) =>{
