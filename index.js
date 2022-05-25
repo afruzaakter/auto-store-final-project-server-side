@@ -20,6 +20,25 @@ async function run(){
         await client.connect();
         // console.log('database connection success');
         const servicesCollection = client.db('auto-store').collection('services');
+        const purchaseCollection = client.db('auto-store').collection('purchase');
+
+        app.post('/purchase',async(req, res) =>{
+            const purchase = req.body;
+            // console.log(purchase)
+            const result = await purchaseCollection.insertOne(purchase);
+            res.send(result);
+            // console.log(result);
+        });
+
+        app.get('/purchase', async(req, res) =>{
+            const user = req.query.userEmail;
+            console.log("user",user);
+            const query = {user: user};
+            const purchases = await purchaseCollection.find(query).toArray();
+            res.send(purchases);
+        })
+
+
         //all services
         app.get('/service', async(req, res) =>{
             const query = {}
