@@ -31,21 +31,17 @@ async function run(){
             res.send(result);
             // console.log(result);
         });
-        // app.delete('/service/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     // console.log('params',id);
-        //     const query = { _id: ObjectId(id) };
-        //     const service = await servicesCollection.deleteOne(query);
-        //     res.send(service);
-        // })
+       
+       
         
         // delete
         app.delete('/purchase/:id',async( req, res)=>{
             const id = req.params.id;
-            console.log('puid',id);
+            console.log('id',id);
             const query = {_id: ObjectId(id)}
-            const purchase = await purchaseCollection.deleteOne(query);
-            res.send(purchase);
+            const result = await purchaseCollection.deleteOne(query);
+            res.send(result);
+            console.log(result);
         })
 
         //purchase table data show
