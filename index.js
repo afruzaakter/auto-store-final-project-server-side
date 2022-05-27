@@ -48,6 +48,20 @@ async function run(){
             res.send(result);
             // console.log(result);
         });
+
+
+        //verifyAdmin 
+
+        const verifyAdmin = async (req, res, next) =>{
+            const requester = req.decoded.email;
+            const requesterAccount =await userCollection.findOne({email: requester});
+            if(requesterAccount.role === 'admin'){
+                next();
+            }
+            else{
+                res.status(403).send({message: 'forbidden'});
+            }
+        }
        
        
         
@@ -85,60 +99,60 @@ async function run(){
                 res.send(purchase); 
         })
         
-        //get user make admin
-        app.get('/user',verifyJWT, async(req, res) =>{
+
+      
+       
+        //user collection
+        app.put('/user/:email', async(req, res )=>{
+            const email = req.params.email;
+            const user = req.body;
+            const filter = {email: email};
+            const options = {upsert: true};
+            const updateDoc ={
+                $set: user,
+            };
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+            const token = jwt.sign({email: email}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '10h' });
+            console.log(token)
+
+            res.send({result, token});
+        })
+           //get user make admin
+           app.get('/user', async(req, res) =>{
             const users = await userCollection.find().toArray();
             res.send(users);
         })
-        //user collection
-        app.put('/user/:email', async(req, res )=>{
-            const email = req.params.email;
-            const user = req.body;
-            const filter = {email: email};
-            const options = {upsert: true};
-            const updateDoc ={
-                $set: user,
-            };
-            const result = await userCollection.updateOne(filter, updateDoc, options);
-            const token = jwt.sign({email: email}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1h' });
-            console.log(token)
-
-            res.send({result, token});
-        })
-        //user collection
-        app.put('/user/:email', async(req, res )=>{
-            const email = req.params.email;
-            const user = req.body;
-            const filter = {email: email};
-            const options = {upsert: true};
-            const updateDoc ={
-                $set: user,
-            };
-            const result = await userCollection.updateOne(filter, updateDoc, options);
-            const token = jwt.sign({email: email}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1h' });
-            console.log(token)
-
-            res.send({result, token});
-        })
+       //remove user
+       app.delete('/user/:id',async(req, res)=>{
+           const id = req.params.id;
+           const query = {_id: ObjectId(id)}
+           const result = await userCollection.deleteOne(query);
+           res.send(result);
+       })
         //user  admin collection
-        app.put('/user/admin/:email',verifyJWT, async(req, res )=>{
+        app.put('/user/admin/:email', async(req, res )=>{
             const email = req.params.email;
-            const requester = req.decoded.email;
-            const requesterAccount = await userCollection.findOne({email: requester})
-            if(requesterAccount.role === 'admin'){
                 const filter = {email: email};
                 const updateDoc ={
                     $set: {role: 'admin'},
                 };
                 const result = await userCollection.updateOne(filter, updateDoc, );      
                 res.send(result);
-            }
-            else{
-                res.status(403).send({message: 'forbidden'});
-            }
-           
         })
+      //  admin get
+      app.get('/admin/:email', async(req, res) =>{
+          const email = req.params.email;
+          const user = await userCollection.findOne({email: email});
+          const isAdmin = user.role === 'admin';
+          res.send({ admin: isAdmin})
+      }) 
+      //add service
+      app.post('/service', async(req, res) =>{
+          const newService  = req.body;
+          const result = await servicesCollection.insertOne(newService);
+          res.send(result);
 
+      })
         //all services
         app.get('/service', async(req, res) =>{
             const query = {}
