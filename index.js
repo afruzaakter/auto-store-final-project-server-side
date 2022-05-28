@@ -40,6 +40,40 @@ async function run(){
         const servicesCollection = client.db('auto-store').collection('services');
         const purchaseCollection = client.db('auto-store').collection('purchase');
         const userCollection = client.db('auto-store').collection('users');
+        const reviewCollection = client.db('auto-store').collection('review');
+        const profileCollection = client.db('auto-store').collection('profile');
+
+
+        //user Profile part
+        app.post('/profile', async(req, res) =>{
+            const newProfile = req.body;
+            const profile = await profileCollection.insertOne(newProfile);
+            res.send(profile);
+        })
+
+        //user Profile get
+        app.get('/profile', async(req, res)=>{
+            const query = {};
+            const cursur = profileCollection.find(query);
+            const reviews = await cursur.toArray();
+            res.send(reviews)
+        })
+        //review part
+        app.post('/review', async(req, res) =>{
+            const newReview = req.body;
+            const result = await reviewCollection.insertOne(newReview);
+            res.send(result);
+        })
+
+        //review get
+        app.get('/review', async(req, res)=>{
+            const query = {};
+            const cursur = reviewCollection.find(query);
+            const reviews = await cursur.toArray();
+            res.send(reviews)
+        })
+
+      
 
         app.post('/purchase',async(req, res) =>{
             const purchase = req.body;
