@@ -161,7 +161,7 @@ async function run() {
 
 
         // , { expiresIn: '10h' }
-        
+
         //get user make admin
         app.get('/user', async (req, res) => {
             const users = await userCollection.find().toArray();
@@ -188,7 +188,7 @@ async function run() {
                 res.send(result);
             }
             else {
-             res.status(403).send({ message: 'forbidden access' })
+                res.status(403).send({ message: 'forbidden access' })
             }
 
         })
@@ -222,7 +222,7 @@ async function run() {
             const service = await servicesCollection.findOne(query);
             res.send(service);
         })
-       
+
         //delete
 
 
@@ -260,6 +260,6 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log('Listening to port', port);
 });
-
+module.exports = app;
 
 
